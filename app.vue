@@ -1,3 +1,5 @@
 <template>
+    <UNotifications/>
+
     <NuxtPage/>
 </template>

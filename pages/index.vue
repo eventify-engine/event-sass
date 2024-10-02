@@ -8,8 +8,8 @@
                       description="Plan, design, test and go!"
                       :links="[{
                           label: 'Let\'s start!',
-                          icon: 'i-heroicons-rocket-launch',
-                          to: '/login',
+                          icon: 'i-heroicons-rocket-launch-solid',
+                          to: '/control',
                           size: 'xl'
                       }]"/>
     </UMain>
