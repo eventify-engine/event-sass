@@ -1,15 +1,17 @@
 <script setup lang="ts">
-import type ProfileResource from '~/resources/ProfileResource';
 import ConferenceRepository from "~/repos/ConferenceRepository";
 
 definePageMeta({
     layout: 'control'
 });
 
-const profile = useState<ProfileResource | null>('profile');
+const route   = useRoute();
 const repo    = new ConferenceRepository();
+const search  = ref<string>(route.query.search as string ?? '');
 
-const {data: conferences} = await repo.list(() => ({}));
+const {data: conferences} = await repo.list(() => ({search: search.value}));
+
+watch(search, value => navigateTo('?' + querify({search: value}).toString()));
 </script>
 
 <template>
@@ -24,19 +26,21 @@ const {data: conferences} = await repo.list(() => ({}));
     </div>
 
     <div v-else-if="conferences" class="h-full py-10">
-        <UCard class="w-full max-w-xl overflow-clip" :ui="{body: {padding: ''}}">
+        <UCard class="w-[400px] overflow-clip" :ui="{body: {padding: ''}}">
             <template #header>
                 <div class="flex items-center gap-5">
                     <UInput size="xl"
                             class="grow"
                             icon="i-heroicons-magnifying-glass"
-                            placeholder="Search..."/>
+                            placeholder="Search..."
+                            v-model="search"/>
 
-                    <UButton color="gray"
-                             icon="i-heroicons-plus"
-                             size="xl"
-                             label="New conference"
-                             to="/control/conferences/create"/>
+                    <UTooltip text="New conference">
+                        <UButton color="gray"
+                                 icon="i-heroicons-plus"
+                                 size="xl"
+                                 to="/control/conferences/create"/>
+                    </UTooltip>
                 </div>
             </template>
 
