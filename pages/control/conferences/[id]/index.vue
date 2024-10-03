@@ -54,6 +54,27 @@ async function submit(event: FormSubmitEvent<Schema>) {
         loading.value = false;
     }
 }
+
+const removeModal = ref<boolean>(false);
+const removing    = ref<boolean>(false);
+
+async function remove() {
+    removing.value = true;
+
+    try {
+        await repo.remove(props.conference.id);
+        await navigateTo('/control');
+    } catch (e: any) {
+        toast.add({
+            title      : 'Whoops',
+            description: e.statusCode === 500 ? 'Something broke on the server' : e.message,
+            color      : 'red',
+            icon       : 'i-heroicons-exclamation-circle-16-solid'
+        });
+    } finally {
+        removing.value = false;
+    }
+}
 </script>
 
 <template>
@@ -75,15 +96,62 @@ async function submit(event: FormSubmitEvent<Schema>) {
                         <UInput placeholder="Amazing banana workouts" v-model="state.name"/>
                     </UFormGroup>
 
-                    <UButton type="submit"
-                             label="Done"
-                             icon="i-heroicons-check"
-                             size="xl"
-                             :loading="loading"/>
+                    <div class="flex flex-col gap-2.5">
+                        <UButton type="submit"
+                                 label="Done"
+                                 icon="i-heroicons-check"
+                                 size="xl"
+                                 :loading="loading"/>
+
+                        <UButton label="Remove"
+                                 color="red"
+                                 icon="i-heroicons-trash"
+                                 size="xl"
+                                 @click="removeModal = true"/>
+                    </div>
                 </div>
             </UCard>
         </UForm>
     </div>
+
+    <UModal v-model="removeModal">
+        <UForm>
+            <UCard :ui="{ring: ''}">
+                <template #header>
+                    <div class="flex items-center justify-between">
+                        <h5 class="font-semibold text-lg">Remove conference</h5>
+
+                        <UButton color="gray"
+                                 variant="link"
+                                 icon="i-heroicons-x-mark"
+                                 size="xl"
+                                 :padded="false"
+                                 @click="removeModal = false"/>
+                    </div>
+                </template>
+
+                <p class="font-semibold">Do you really want to delete this conference?</p>
+                <p>All conference-related items will be deleted. Statistics will not be available.</p>
+
+                <template #footer>
+                    <div class="flex items-center justify-end gap-2.5">
+                        <UButton color="red"
+                                 label="Confirm"
+                                 size="md"
+                                 type="submit"
+                                 tabindex="1"
+                                 :loading="removing"
+                                 @click="remove"/>
+
+                        <UButton color="gray"
+                                 label="Cancel"
+                                 size="md"
+                                 @click="removeModal = false"/>
+                    </div>
+                </template>
+            </UCard>
+        </UForm>
+    </UModal>
 </template>
 
 <style scoped>
