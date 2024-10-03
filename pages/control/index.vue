@@ -19,15 +19,15 @@ watch(search, value => navigateTo('?' + querify({search: value}).toString()));
         <title>Control // Eventify</title>
     </Head>
 
-    <div v-if="conferences?.data.length == 0" class="flex items-center">
+    <div v-if="conferences?.total == 0" class="flex items-center">
         <ULandingHero title="No conferences"
                       description="Let's make a new one!"
                       :links="[{label: 'New conference', color: 'gray', icon: 'i-heroicons-plus', size: 'xl', to: '/control/conferences/create'}]"/>
     </div>
 
     <div v-else-if="conferences" class="h-full py-10">
-        <UCard class="w-[400px] overflow-clip" :ui="{body: {padding: ''}}">
-            <template #header>
+        <div class="w-[400px] flex flex-col gap-5">
+            <UCard>
                 <div class="flex items-center gap-5">
                     <UInput size="xl"
                             class="grow"
@@ -42,17 +42,27 @@ watch(search, value => navigateTo('?' + querify({search: value}).toString()));
                                  to="/control/conferences/create"/>
                     </UTooltip>
                 </div>
-            </template>
+            </UCard>
 
-            <ul>
-                <li v-for="conference in conferences.data" :key="conference.id">
-                    <NuxtLink :to="`/control/conferences/${conference.id}`"
-                              class="flex gap-2 hover:bg-primary-500 hover:text-gray-50 px-4 sm:px-6 py-2.5 sm:py-3 text-xl">
-                        <span>{{ conference.name }}</span>
-                    </NuxtLink>
-                </li>
-            </ul>
-        </UCard>
+            <div v-for="conference in conferences.data" :key="conference.id">
+                <NuxtLink :to="`/control/conferences/${conference.id}`">
+                    <UCard class="hover:bg-gray-100" :ui="{body: {padding: 'sm:px-6 sm:py-4'}}">
+                        <div class="flex justify-between items-center gap-5">
+                            <div>
+                                <span class="text-xs">Conference #{{ conference.id }}</span>
+                                <h5 class="text-lg font-semibold">{{ conference.name }}</h5>
+                            </div>
+
+                            <UButton icon="i-heroicons-arrow-right"
+                                     color="gray"
+                                     square
+                                     size="xl"
+                                     :ui="{rounded: 'rounded-full'}"/>
+                        </div>
+                    </UCard>
+                </NuxtLink>
+            </div>
+        </div>
     </div>
 </template>
 

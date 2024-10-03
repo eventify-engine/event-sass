@@ -20,8 +20,45 @@ const form    = ref<Form<Schema>>();
 const loading = ref<boolean>(false);
 const toast   = useToast();
 
+watch(() => props.conference, value => state.value = {...value});
+
+watch(() => state.value.name, (value, oldValue) => {
+    function transform(input: string): string {
+        return input.toLowerCase()
+                    .replaceAll(/ /g, '-')
+                    .replaceAll(/[^a-z0-9-]/g, '')
+                    .substring(0, 25);
+    }
+
+    if (state.value.host_prefix != transform(oldValue))
+        return;
+
+    state.value.host_prefix = transform(value);
+    schema.validateAt('host_prefix', state.value)
+          .then(() => form.value?.clear('host_prefix'))
+          .catch((e) => form.value?.setErrors([{message: e.message, path: 'host_prefix'}], 'host_prefix'));
+});
+
 const schema = object({
-    name: string().required().max(50).label('Name')
+    name: string().required().max(50).label('Name'),
+    host_prefix: string().required().max(25)
+                         .matches(/^[a-z0-9-]+$/, 'Host prefix must have only "a-z", "0-9" and "-" characters (in lower case)')
+                         .label('Host prefix')
+                         .test(
+                             'is-unique',
+                             'Host prefix must be unique',
+                             async (value: string): Promise<boolean> => {
+                                 if (!value)
+                                     return false;
+
+                                 const response = await repo.hostPrefix(value);
+
+                                 if (props.conference.id === response.data.id)
+                                     return true;
+
+                                 return !response.data.id;
+                             }
+                         )
 });
 
 type Schema = InferType<typeof schema>;
@@ -94,6 +131,18 @@ async function remove() {
                 <div class="flex flex-col gap-5">
                     <UFormGroup label="Name" name="name" size="xl" required>
                         <UInput placeholder="Amazing banana workouts" v-model="state.name"/>
+                    </UFormGroup>
+
+                    <UFormGroup label="Host prefix"
+                                name="host_prefix"
+                                size="xl"
+                                required>
+                        <template #help>
+                            <span class="block truncate">{{ `${state.host_prefix}.event.vrkitty.ru` }}</span>
+                        </template>
+
+                        <UInput placeholder="banana"
+                                v-model="state.host_prefix"/>
                     </UFormGroup>
 
                     <div class="flex flex-col gap-2.5">

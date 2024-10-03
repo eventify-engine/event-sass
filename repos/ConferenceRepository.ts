@@ -9,6 +9,10 @@ export default class ConferenceRepository extends CrudRepository<ConferenceResou
         return super.store(data);
     }
 
+    public hostPrefix(value: string): Promise<Resource<{id: number|null}>> {
+        return this.client.get<Resource<{id: number|null}>>(`${this.baseUrl}/host-prefix?` + querify({value}).toString());
+    }
+
     public show(id: number) {
         return this.client.getData<Resource<ConferenceResource>>(`conference.show.${id}`, `${this.baseUrl}/${id}`)
     }
