@@ -21,6 +21,7 @@ const toast            = useToast();
 const form             = ref<Form<Schema>>();
 const hasError         = ref<boolean>(false);
 const loading          = ref<boolean>(false);
+const token            = useCookie<string>('token', {expires: new Date(Date.now() + 3600 * 24 * 31 * 1000)});
 
 type Schema = InferType<typeof schema>;
 
@@ -33,7 +34,9 @@ async function submit(event: FormSubmitEvent<Schema>) {
     hasError.value = false;
 
     try {
-        await action(event.data);
+        const response = await action(event.data);
+        token.value = response.data.token;
+        await navigateTo('/control');
     } catch (e: any) {
         if (e.statusCode === 422) {
             form.value.setErrors(Object.keys(e.data.errors).map((key: string) => ({

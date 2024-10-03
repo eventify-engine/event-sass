@@ -36,7 +36,7 @@ export default class AuthRepository extends Repository {
         return {
             schema,
             action: (data: Schema) => {
-                return this.client.post<void>('/register', data);
+                return this.client.post<Resource<{token: string}>>('/register', data);
             }
         };
     }
