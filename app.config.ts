@@ -6,7 +6,7 @@ export default defineAppConfig({
         input: {
             color: {
                 red: {
-                    outline: 'bg-red-100 ring-red-400 ring-2'
+                    outline: 'bg-red-100 ring-red-400 ring-2 focus-visible:ring-2'
                 }
             }
         },
