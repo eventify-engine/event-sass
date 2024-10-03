@@ -17,10 +17,11 @@ const {data: conferences} = await repo.list(() => ({}));
         <title>Control // Eventify</title>
     </Head>
 
-    <ULandingHero v-if="conferences?.data.length == 0"
-                  title="No conferences"
-                  description="Let's make a new one!"
-                  :links="[{label: 'New conference', color: 'gray', icon: 'i-heroicons-plus', size: 'xl', to: '/control/conferences/create'}]"/>
+    <div v-if="conferences?.data.length == 0" class="flex items-center">
+        <ULandingHero title="No conferences"
+                      description="Let's make a new one!"
+                      :links="[{label: 'New conference', color: 'gray', icon: 'i-heroicons-plus', size: 'xl', to: '/control/conferences/create'}]"/>
+    </div>
 
     <div v-else-if="conferences" class="h-full py-10">
         <UCard class="w-full max-w-xl overflow-clip" :ui="{body: {padding: ''}}">

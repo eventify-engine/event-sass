@@ -33,7 +33,7 @@ async function submit(event: FormSubmitEvent<Schema>) {
 
     try {
         const response = await action(event.data);
-        token.value = response.data.token;
+        token.value    = response.data.token;
         await navigateTo('/control');
     } catch (e: any) {
         if (e.statusCode === 422) {
@@ -73,7 +73,19 @@ async function submit(event: FormSubmitEvent<Schema>) {
         <UCard class="w-72 bg-transparent/20 backdrop-blur ring-0 shadow-xl"
                :class="{'has-error': hasError}">
             <div class="flex flex-col gap-5">
-                <h3 class="text-gray-50 font-semibold text-xl text-center">Login</h3>
+                <div class="flex items-center gap-3">
+                    <UButton icon="i-heroicons-arrow-left-16-solid"
+                             :padded="false"
+                             square
+                             variant="link"
+                             color="gray"
+                             size="xl"
+                             class="mt-0.5"
+                             to="/"
+                             :ui="{color: {gray: {link: 'text-gray-50 hover:text-gray-300'}}}"/>
+
+                    <h3 class="text-gray-50 font-semibold text-xl">Login</h3>
+                </div>
 
                 <UFormGroup label="E-mail"
                             name="email"
