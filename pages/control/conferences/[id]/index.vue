@@ -2,7 +2,7 @@
 import ConferenceRepository from "~/repos/ConferenceRepository";
 import {type InferType, object, string} from "yup";
 import type {Form, FormSubmitEvent} from "#ui/types";
-import ConferenceResource from "~/resources/ConferenceResource";
+import type ConferenceResource from "~/resources/ConferenceResource";
 
 definePageMeta({
     layout: 'control'
