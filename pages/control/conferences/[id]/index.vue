@@ -26,6 +26,7 @@ watch(() => state.value.name, (value, oldValue) => {
     function transform(input: string): string {
         return input.toLowerCase()
                     .replaceAll(/ /g, '-')
+                    .replaceAll(/&/g, 'and')
                     .replaceAll(/[^a-z0-9-]/g, '')
                     .substring(0, 25);
     }
