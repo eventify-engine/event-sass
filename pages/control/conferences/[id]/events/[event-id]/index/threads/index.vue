@@ -1,35 +1,38 @@
 <script setup lang="ts">
 import EventRepository from "~/repos/EventRepository";
 import type ConferenceResource from "~/resources/ConferenceResource";
+import type EventResource from "~/resources/EventResource";
+import ThreadRepository from "~/repos/ThreadRepository";
 
 const props = defineProps<{
     conference: ConferenceResource,
+    event: EventResource,
     refresh: () => Promise<void>
 }>();
 
 const route  = useRoute();
-const repo   = new EventRepository(props.conference.id);
+const repo   = new ThreadRepository(props.conference.id, props.event.id);
 const search = ref<string>(route.query.search as string ?? '');
 
-const {data: events} = await repo.list(() => ({search: search.value}));
+const {data: threads} = await repo.list(() => ({search: search.value}));
 
 watch(search, value => navigateTo('?' + querify({search: value}).toString()));
 </script>
 
 <template>
     <Head>
-        <title>{{ `Events // Conference #${conference.id} // Eventify` }}</title>
+        <title>{{ `Threads // Event #${event.id} // Conference #${conference.id} // Eventify` }}</title>
     </Head>
 
-    <div v-if="events?.total == 0" class="w-[400px] text-center flex flex-col gap-5">
-        <h3 class="text-4xl font-semibold">No events</h3>
+    <div v-if="threads?.total == 0" class="w-[400px] text-center flex flex-col gap-5">
+        <h3 class="text-4xl font-semibold">No threads</h3>
 
         <div>
             <UButton color="gray"
-                     label="New event"
+                     label="New thread"
                      icon="i-heroicons-plus"
                      size="xl"
-                     :to="`/control/conferences/${conference.id}/events/create`"/>
+                     :to="`/control/conferences/${conference.id}/events/${event.id}/threads/create`"/>
         </div>
     </div>
 
@@ -46,18 +49,18 @@ watch(search, value => navigateTo('?' + querify({search: value}).toString()));
                     <UButton color="gray"
                              icon="i-heroicons-plus"
                              size="xl"
-                             :to="`/control/conferences/${conference.id}/events/create`"/>
+                             :to="`/control/conferences/${conference.id}/events/${event.id}/threads/create`"/>
                 </UTooltip>
             </div>
         </UCard>
 
-        <div v-for="event in events?.data ?? []" :key="event.id">
-            <NuxtLink :to="`/control/conferences/${conference.id}/events/${event.id}`">
+        <div v-for="thread in threads?.data ?? []" :key="thread.id">
+            <NuxtLink :to="`/control/conferences/${conference.id}/events/${event.id}/threads/${thread.id}`">
                 <UCard class="hover:bg-gray-100" :ui="{body: {padding: 'sm:px-6 sm:py-4'}}">
                     <div class="flex justify-between items-center gap-5">
                         <div>
-                            <span class="text-xs">Event #{{ event.id }}</span>
-                            <h5 class="text-lg font-semibold">{{ event.name }}</h5>
+                            <span class="text-xs">Thread #{{ thread.id }}</span>
+                            <h5 class="text-lg font-semibold">{{ thread.name }}</h5>
                         </div>
 
                         <UButton icon="i-heroicons-arrow-right"

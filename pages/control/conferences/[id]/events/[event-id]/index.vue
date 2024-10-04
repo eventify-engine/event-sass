@@ -29,6 +29,12 @@ const nav = computed(() => [
         icon  : 'i-heroicons-home',
         to    : `/control/conferences/${id}/events/${eventId}`,
         active: route.path == `/control/conferences/${id}/events/${eventId}`
+    },
+    {
+        label : 'Threads',
+        icon  : 'i-heroicons-megaphone',
+        to    : `/control/conferences/${id}/events/${eventId}/threads`,
+        active: route.path.startsWith(`/control/conferences/${id}/events/${eventId}/threads`)
     }
 ]);
 
