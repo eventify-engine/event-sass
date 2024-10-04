@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import EventRepository from "~/repos/EventRepository";
 import ConferenceRepository from "~/repos/ConferenceRepository";
 
 definePageMeta({
@@ -9,33 +10,43 @@ const route = useRoute();
 const id    = parseInt(route.params.id as string);
 const repo  = new ConferenceRepository();
 
-const {data: conference, refresh} = await repo.show(id);
+const {data: conference} = await repo.show(id);
 
 if (!conference.value)
     await navigateTo('/control');
 
+const eventId   = parseInt(route.params.eventid as string);
+const eventRepo = new EventRepository(conference.value?.data.id ?? 0);
+
+const {data: event, refresh} = await eventRepo.show(eventId);
+
+if (!event.value)
+    await navigateTo(`/control/conferences/${conference.value?.data.id}/events`);
+
 const nav = computed(() => [
     {
-        label : 'Conference',
+        label : 'Event',
         icon  : 'i-heroicons-home',
-        to    : `/control/conferences/${id}`,
-        active: route.path == `/control/conferences/${id}`
-    },
-    {
-        label: 'Events',
-        icon : 'i-heroicons-fire',
-        to   : `/control/conferences/${id}/events`
+        to    : `/control/conferences/${id}/events/${eventId}`,
+        active: route.path == `/control/conferences/${id}/events/${eventId}`
     }
 ]);
 
 const navUi = {
-    base: 'gap-2.5',
-    size: 'text-base',
+    base   : 'gap-2.5',
+    size   : 'text-base',
     padding: 'px-3 py-2.5',
-    icon: {
+    icon   : {
         base: 'w-6 h-6'
     }
 };
+
+const breadcrumb = computed(() => [{
+    label: `Conference #${id}`,
+    to   : `/control/conferences/${id}`
+}, {
+    label: `Event #${eventId}`
+}]);
 </script>
 
 <template>
@@ -49,11 +60,11 @@ const navUi = {
                          color="gray"
                          size="xl"
                          class="mt-0.5"
-                         to="/control"/>
+                         :to="`/control/conferences/${id}/events`"/>
 
                 <div>
-                    <p class="text-sm">Conference #{{ conference?.data.id }}</p>
-                    <h1 class="text-2xl font-semibold leading-5">{{ conference?.data.name }}</h1>
+                    <UBreadcrumb :links="breadcrumb"/>
+                    <h1 class="text-2xl font-semibold leading-5">{{ event?.data.name }}</h1>
                 </div>
             </div>
 
@@ -64,7 +75,9 @@ const navUi = {
                     <UVerticalNavigation class="w-48" :links="nav" :ui="navUi"/>
                 </UCard>
 
-                <NuxtPage :conference="conference?.data" :refresh="refresh"/>
+                <NuxtPage :conference="conference?.data"
+                          :event="event?.data"
+                          :refresh="refresh"/>
             </div>
         </div>
     </div>
