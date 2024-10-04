@@ -27,7 +27,7 @@ if (!event.value)
 const threadId   = parseInt(route.params.threadid as string);
 const threadRepo = new ThreadRepository(conference.value?.data.id ?? 0, event.value?.data.id ?? 0);
 
-const {data: thread, refresh} = await threadRepo.show(eventId);
+const {data: thread, refresh} = await threadRepo.show(threadId);
 
 if (!thread.value)
     await navigateTo(`/control/conferences/${conference.value?.data.id}/events/${event.value?.data.id}/threads`);
@@ -40,6 +40,11 @@ const breadcrumb = computed(() => [{
     to : `/control/conferences/${id}/events/${eventId}`
 }, {
     label: `Thread #${threadId}`
+}]);
+
+const links = computed(() => [{
+    label: 'Thread',
+    to: `/control/conferences/${id}/events/${eventId}/threads/${threadId}`
 }]);
 </script>
 
@@ -64,6 +69,23 @@ const breadcrumb = computed(() => [{
                 </div>
 
                 <UDivider/>
+
+                <div class="flex gap-10">
+                    <div class="grow">
+                        <UCard></UCard>
+                    </div>
+
+                    <UCard class="w-[400px]" :ui="{header: {padding: 'py-0 px-3 sm:px-3'}}">
+                        <template #header>
+                            <UHorizontalNavigation :links="links"/>
+                        </template>
+
+                        <NuxtPage :conference="conference?.data"
+                                  :event="event?.data"
+                                  :thread="thread?.data"
+                                  :refresh="refresh"/>
+                    </UCard>
+                </div>
             </div>
         </div>
     </UContainer>
