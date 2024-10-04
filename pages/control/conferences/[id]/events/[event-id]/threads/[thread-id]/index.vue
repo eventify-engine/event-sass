@@ -71,11 +71,11 @@ const links = computed(() => [{
                 <UDivider/>
 
                 <div class="flex gap-10">
-                    <div class="grow">
-                        <UCard></UCard>
+                    <div class="grow w-0">
+                        <ThreadSequenceEditor/>
                     </div>
 
-                    <UCard class="w-[400px]" :ui="{header: {padding: 'py-0 px-3 sm:px-3'}}">
+                    <UCard class="w-[400px] shrink-0" :ui="{header: {padding: 'py-0 px-3 sm:px-3'}}">
                         <template #header>
                             <UHorizontalNavigation :links="links"/>
                         </template>
