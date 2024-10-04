@@ -19,6 +19,7 @@ const state   = ref<ConferenceResource | any>({...props.conference});
 const form    = ref<Form<Schema>>();
 const loading = ref<boolean>(false);
 const toast   = useToast();
+const config  = useRuntimeConfig();
 
 watch(() => props.conference, value => state.value = {...value});
 
@@ -41,7 +42,7 @@ watch(() => state.value.name, (value, oldValue) => {
 });
 
 const schema = object({
-    name: string().required().max(50).label('Name'),
+    name       : string().required().max(50).label('Name'),
     host_prefix: string().required().max(25)
                          .matches(/^[a-z0-9-]+$/, 'Host prefix must have only "a-z", "0-9" and "-" characters (in lower case)')
                          .label('Host prefix')
@@ -139,7 +140,9 @@ async function remove() {
                                 size="xl"
                                 required>
                         <template #help>
-                            <span class="block truncate">{{ `${state.host_prefix}.event.vrkitty.ru` }}</span>
+                            <span class="block truncate">
+                                {{ config.public.userFrontend.replace('*', state.host_prefix) }}
+                            </span>
                         </template>
 
                         <UInput placeholder="banana"
@@ -165,7 +168,7 @@ async function remove() {
     </div>
 
     <UModal v-model="removeModal">
-        <UForm>
+        <form>
             <UCard :ui="{ring: ''}">
                 <template #header>
                     <div class="flex items-center justify-between">
@@ -200,7 +203,7 @@ async function remove() {
                     </div>
                 </template>
             </UCard>
-        </UForm>
+        </form>
     </UModal>
 </template>
 

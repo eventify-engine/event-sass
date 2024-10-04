@@ -7,8 +7,9 @@ export default defineNuxtConfig({
 
     runtimeConfig: {
         public: {
-            apiUrl    : process.env.NUXT_API_URL,
-            storageUrl: process.env.NUXT_STORAGE_URL
+            apiUrl      : process.env.NUXT_API_URL,
+            storageUrl  : process.env.NUXT_STORAGE_URL,
+            userFrontend: process.env.NUXT_USER_FRONTEND
         }
     },
 
@@ -27,6 +28,6 @@ export default defineNuxtConfig({
             ]
         },
 
-        layoutTransition: { name: 'layout', mode: 'out-in' }
+        layoutTransition: {name: 'layout', mode: 'out-in'}
     }
 })

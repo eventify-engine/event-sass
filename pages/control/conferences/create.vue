@@ -16,6 +16,7 @@ const repo    = new ConferenceRepository();
 const form    = ref<Form<Schema>>();
 const loading = ref<boolean>(false);
 const toast   = useToast();
+const config  = useRuntimeConfig();
 
 watch(() => state.value.name, (value, oldValue) => {
     function transform(input: string): string {
@@ -122,7 +123,9 @@ async function submit(event: FormSubmitEvent<Schema>) {
                                 size="xl"
                                 required>
                         <template #help>
-                            <span class="block truncate">{{ `${state.host_prefix}.event.vrkitty.ru` }}</span>
+                            <span class="block truncate">
+                                {{ config.public.userFrontend.replace('*', state.host_prefix) }}
+                            </span>
                         </template>
 
                         <UInput placeholder="banana"
