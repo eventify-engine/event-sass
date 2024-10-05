@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const props = defineProps<{
-    block: any
+    block: any,
+    isFirst: boolean
 }>();
 
 const emit = defineEmits<{
@@ -8,12 +9,15 @@ const emit = defineEmits<{
     (e: 'outVectorStart'): void
 }>();
 
+const prevBlockStopped = defineModel<boolean>('prevBlockStopped');
+
 const {x: mouseX} = useMouse();
 
 const resize     = ref<boolean>(false);
 const startX     = ref<number>(0);
 const startWidth = ref<number>(0);
 const alt        = ref<boolean>(false);
+const {pressed}  = useMousePressed();
 
 const vectorX    = computed(() => mouseX.value - startX.value);
 const altVectorX = computed(() => startX.value - mouseX.value);
@@ -31,34 +35,47 @@ watch(mouseX, value => {
     if (!resize.value)
         return;
 
-    props.block.width = (alt.value ? altVectorX.value : vectorX.value) + startWidth.value;
+    let vector = alt.value ? altVectorX.value : vectorX.value;
 
-    if (alt.value)
+    if (!prevBlockStopped.value)
+        props.block.width = Math.max(10, snapToGrid(vector + startWidth.value, 10));
+
+    if (alt.value && props.block.width != 10)
         emit('outVector', vectorX.value);
 });
+
+watch(pressed, value => {
+    if (value)
+        return;
+
+    resize.value = false;
+    alt.value    = false;
+});
+
+function startLeftResize() {
+    if (props.isFirst)
+        return;
+
+    resize.value = true;
+    alt.value    = true;
+}
 </script>
 
 <template>
     <div :draggable="!resize"
          :style="`width: ${block.width}px;`"
-         :class="`${block.color}`"
-         class="group">
-        <div class="opacity-0 group-hover:opacity-100 hover:bg-transparent/10 h-full flex items-center shrink-0 px-1"
-             @mousedown="resize = true; alt = true;"
-             @mouseup="resize = false; alt = false;"
-             @mouseleave="resize = false; alt = false;">
-            <UIcon name="i-heroicons-chevron-left"/>
+         :class="`${block.color} ${resize ? 'cursor-e-resize' : 'cursor-grab'}`"
+         class="group h-16 flex items-center justify-between shrink-0 border-2 border-gray-400/20 rounded-lg relative hover:border-gray-800/20">
+        <div class="w-[4px] h-16 cursor-e-resize absolute -top-0.5 -start-0.5 z-10"
+             :class="{'group-hover:opacity-0': isFirst}"
+             @mousedown="startLeftResize">
         </div>
 
         <div class="w-full h-full flex items-center justify-center grow">
-            {{ vectorX }}
         </div>
 
-        <div class="opacity-0 group-hover:opacity-100 hover:bg-transparent/10 h-full flex items-center shrink-0 px-1"
-             @mousedown="resize = true"
-             @mouseup="resize = false"
-             @mouseleave="resize = false">
-            <UIcon name="i-heroicons-chevron-right"/>
+        <div class="w-[4px] h-16 cursor-e-resize absolute -top-0.5 -end-0.5 z-10"
+             @mousedown="resize = true">
         </div>
     </div>
 </template>

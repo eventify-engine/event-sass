@@ -14,17 +14,23 @@ function dragOver(block: any) {
 }
 
 const startPrevBlockWidth = ref<number>(0);
+const prevBlockStopped    = ref<boolean>(false);
 
 function startPrevBlock(curBlock: any) {
     const prevBlock = blocks.value.find(block => block.order == curBlock.order - 1);
-    if (prevBlock)
+    if (prevBlock) {
         startPrevBlockWidth.value = prevBlock.width;
+        prevBlockStopped.value    = false;
+    }
 }
 
 function setPrevBlock(curBlock: any, value: number) {
     const prevBlock = blocks.value.find(block => block.order == curBlock.order - 1);
-    if (prevBlock)
-        prevBlock.width = startPrevBlockWidth.value + value;
+    if (prevBlock) {
+        prevBlock.width = Math.max(10, snapToGrid(startPrevBlockWidth.value + value, 10));
+
+        prevBlockStopped.value = prevBlock.width == 10;
+    }
 }
 </script>
 
@@ -36,16 +42,26 @@ function setPrevBlock(curBlock: any, value: number) {
                  @click="blocks.push({id: incId(), color: next(), order: incOrder(), width: 100})"/>
 
         <div class="overflow-clip rounded">
-            <div class="flex gap-5 overflow-x-scroll w-full py-5 select-none">
-                <SequenceBlock v-for="block in blocks.sort((a, b) => a.order - b.order)"
-                               :key="block.id"
-                               :block="block"
-                               class="h-16 rounded flex items-center justify-between shrink-0 cursor-grab overflow-clip"
-                               @out-vector-start="startPrevBlock(block)"
-                               @out-vector="setPrevBlock(block, $event)"
-                               @dragstart="dragging = block"
-                               @dragover.prevent="dragOver(block)"
-                               @dragend="dragging = undefined"/>
+            <div class="flex flex-col overflow-x-scroll w-full pt-5 pb-5 select-none">
+                <div class="flex mb-2">
+                    <div v-for="n in 600"
+                         class="border-e w-[10px] shrink-0 relative"
+                         :class="{'h-[10px]': n % 60 != 0, 'h-[20px]': n % 60 == 0}">
+                    </div>
+                </div>
+
+                <div class="flex">
+                    <SequenceBlock v-for="(block, index) in blocks.sort((a, b) => a.order - b.order)"
+                                   :key="block.id"
+                                   :block="block"
+                                   :is-first="index == 0"
+                                   v-model:prev-block-stopped="prevBlockStopped"
+                                   @out-vector-start="startPrevBlock(block)"
+                                   @out-vector="setPrevBlock(block, $event)"
+                                   @dragstart="dragging = block"
+                                   @dragover.prevent="dragOver(block)"
+                                   @dragend="dragging = undefined"/>
+                </div>
             </div>
         </div>
     </div>
